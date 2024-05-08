@@ -4,4 +4,6 @@ export interface User {
     address: string;
     nickname: string;
     password: string;
+    birth: any
+    admin : boolean
 }

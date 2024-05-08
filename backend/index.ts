@@ -9,6 +9,8 @@ import passport from 'passport';
 import { configurePassport } from './passport/passport';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import { authRoutes } from './routes/authRoutes';
+import { feedRoutes } from './routes/feedRoute';
 
 const app = express();
 const port = 5000;
@@ -39,6 +41,9 @@ app.use(cors(corsOptions));
 // bodyParser
 app.use(bodyParser.urlencoded({extended: true}));
 
+//JSON Parse
+app.use(express.json());
+
 // cookieParser
 app.use(cookieParser());
 
@@ -56,6 +61,8 @@ app.use(passport.session());
 configurePassport(passport);
 
 app.use('/app', configureRoutes(passport, express.Router()));
+app.use('/auth', authRoutes(passport, express.Router()));
+app.use('/feed', feedRoutes(passport, express.Router()));
 
 app.listen(port, () => {
     console.log('Server is listening on port ' + port.toString());

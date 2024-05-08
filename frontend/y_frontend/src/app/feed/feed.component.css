@@ -1,0 +1,46 @@
+/* feed.component.css */
+.twitter-dashboard {
+    width: 600px;
+    margin: auto;
+  }
+  
+  .tweet-input-card {
+    margin-bottom: 20px;
+  }
+  
+  .tweet-input-field {
+    width: 100%;
+  }
+  
+  .tweet-button {
+    float: right;
+  }
+  
+  .tweet-feed {
+    margin-bottom: 10px;
+  }
+  
+  .tweet-card {
+    border: 1px solid #ccc;
+  }
+
+  .feed-box{
+    min-width: 800px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+  }
+
+  tweet-card{
+    width: 70%;
+  }
+
+  side-card{
+    margin-top: 25px;
+    margin-right: 50px;
+    min-height: 400px;
+    width: 30%;
+  }
+  

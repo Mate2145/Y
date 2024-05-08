@@ -9,15 +9,17 @@ interface IUser extends Document {
     address?: string;
     nickname?: string;
     password: string;
+    birthday?: Date
+    admin: boolean
     comparePassword: (candidatePassword: string, callback: (error: Error | null, isMatch: boolean) => void) => void;
 }
 
 const UserSchema: Schema<IUser> = new mongoose.Schema({
     email: { type: String, required: true },
-    name: { type: String, required: false },
-    address: { type: String, required: false },
     nickname: { type: String, required: false },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    admin: {type: Boolean, required: true},
+    birthday: {type: Date, required: true}
 });
 
 // hook

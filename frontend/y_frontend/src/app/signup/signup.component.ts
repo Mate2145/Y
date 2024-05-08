@@ -2,12 +2,19 @@ import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../shared/services/auth.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import {MatCardModule} from '@angular/material/card';
+import { Router } from '@angular/router';
 
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule,CommonModule,MatCardModule, MatButtonModule,MatFormFieldModule,MatInputModule,MatDatepickerModule,MatNativeDateModule],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss'
 })
@@ -17,15 +24,15 @@ export class SignupComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private location: Location,
-    private authService: AuthService
+    private authService: AuthService,
+    private router : Router
   ) { }
 
   ngOnInit() {
     this.signupForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      name: [''],
-      address: [''],
       nickname: [''],
+      birth: ['' , [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     }, {
@@ -56,6 +63,7 @@ export class SignupComponent implements OnInit {
       this.authService.register(this.signupForm.value).subscribe({
         next: (data) => {
           console.log(data);
+          this.router.navigateByUrl('/login')
         }, error: (err) => {
           console.log(err);
         }
@@ -67,6 +75,10 @@ export class SignupComponent implements OnInit {
 
   goBack() {
     this.location.back();
+  }
+
+  clearForm(){
+    this.signupForm.reset();
   }
 
 }

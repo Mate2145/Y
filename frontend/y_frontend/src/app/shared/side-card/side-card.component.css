@@ -1,0 +1,12 @@
+.sidenav-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+  }
+  mat-sidenav {
+    width: 250px;
+  }
+  mat-card-content{
+    height: 120px;
+  }
+  
