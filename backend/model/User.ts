@@ -4,10 +4,11 @@ import bcrypt from 'bcrypt';
 const SALT_FACTOR = 10;
 
 interface IUser extends Document {
+    _id: mongoose.Types.ObjectId;
     email: string;
     name?: string;
     address?: string;
-    nickname?: string;
+    nickname: string;
     password: string;
     birthday?: Date
     admin: boolean
@@ -16,7 +17,7 @@ interface IUser extends Document {
 
 const UserSchema: Schema<IUser> = new mongoose.Schema({
     email: { type: String, required: true },
-    nickname: { type: String, required: false },
+    nickname: { type: String, required: true },
     password: { type: String, required: true },
     admin: {type: Boolean, required: true},
     birthday: {type: Date, required: true}

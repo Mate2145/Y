@@ -2,11 +2,12 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { MainClass } from '../main-class';
 import { PassportStatic } from 'passport';
 import { User } from '../model/User';
-import mongoose from 'mongoose';
+import mongoose, { ObjectId } from 'mongoose';
 import { Tweet } from '../model/Tweet';
 import { Like } from '../model/Like';
 import { TweetComment } from '../model/TweetComment';
 import { Follow } from '../model/Follow';
+import { UserService } from '../service/UserService';
 
 
 export const feedRoutes = (passport: PassportStatic, router: Router): Router => {
@@ -23,7 +24,8 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
     router.get('/tweetswithcount', async (req, res) => {
         try {
-            const tweets = await Tweet.find();
+            const tweets = await Tweet.find()
+            .sort({ createdAt: -1 });
     
             // Map each tweet to a promise that resolves to the tweet plus its like and comment counts
             const tweetsWithCounts = await Promise.all(tweets.map(async tweet => {
@@ -45,6 +47,12 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
     // GET a single tweet by ID
     router.get('/tweets/:id', async (req, res) => {
+
+        // Check if the user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('User is not authenticated.');
+        }
+
         try {
             const tweet = await Tweet.findById(req.params.id);
             if (!tweet) {
@@ -77,7 +85,7 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
         try {
             console.log("About to update Tweet")
             const text = req.body.text;
-            const currentUserId = req.body.currentUserId
+            const currentUserId = req.user
 
             const tweet = await Tweet.findById(req.params.id);
             if (!tweet) {
@@ -108,7 +116,7 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
         try {
 
-            const currentUserId = req.body.currentUserId
+            const currentUserId = req.user as mongoose.Schema.Types.ObjectId
 
             const tweet = await Tweet.findById(req.params.id);
             if (!tweet) {
@@ -135,10 +143,24 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
     //CREATE
     router.post('/tweet', async (req: Request, res: Response) => {
+        // Check if the user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('User is not authenticated.');
+        }
+        
         try {
+
+            const userid = req.user as string;
+            const user = await User.findById(userid);
+            console.log(user)
+                
+            if (!user) {
+                return res.status(404).send('User not found.');
+            }
+
             console.log(req.body)
-            const userid = req.body.userId
-            const username = req.body.username
+            console.log(userid)
+            const username = user?.nickname
             const text = req.body.text
             if (!mongoose.Types.ObjectId.isValid(userid)) {
                 return res.status(400).send('Invalid user ID.');
@@ -151,9 +173,9 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             });
             console.log(tweet)
             await tweet.save();
-            res.status(201).send(tweet);
+            return res.status(201).send(tweet);
         } catch (error) {
-            res.status(500).send(error);
+            return res.status(500).send(error);
         }
     });
 
@@ -212,8 +234,20 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
 
     router.post('/like', async (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+
         try {
-            const { userId, tweetId, username } = req.body;
+            const userId = req.user as string;
+            const user = await User.findById(userId);
+                
+            if (!user) {
+                return res.status(404).send('User not found.');
+            }
+            const username = user.nickname
+            const { tweetId } = req.body;
+            console.log(tweetId);
             if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(tweetId)) {
                 return res.status(400).send('Invalid userId or tweetId.');
             }
@@ -221,9 +255,12 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             // Ensure the tweet exists
             const tweetExists = await Tweet.findById(tweetId);
             const commentExists = await TweetComment.findById(tweetId);
-            if (!tweetExists || !commentExists) {
+            // Ensure either the tweet or the comment exists, but not both
+            if ((!tweetExists && !commentExists) || (tweetExists && commentExists)) {
                 return res.status(404).send('Tweet not found.');
             }
+
+
     
             // Prevent duplicate likes
             const existingLike = await Like.findOne({ userId, tweetId });
@@ -236,33 +273,90 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
                 tweetId: tweetId,
                 username: username
             });
-    
+            console.log("About to save Like " + tweetId)
             await like.save();
-            res.status(201).send(like);
+
+            // Get the count of likes for the tweet
+            const likeCount = await Like.countDocuments({ tweetId });
+
+            res.status(201).send({
+                like: like,
+                status: likeCount
+            });
         } catch (error) {
             res.status(500).send(error);
         }
     });
 
-    router.delete('/unlike', async (req, res) => {
-        try {
-            const { userId, tweetId } = req.body;
 
+    router.delete('/unlike/:tweetId', async (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+
+
+        try {
+            const userId = req.user as string;
+            const user = await User.findById(userId);
+                
+            if (!user) {
+                return res.status(404).send('User not found.');
+            }
+
+            const tweetId = req.params.tweetId;
+            console.log(tweetId);
             // Ensure the tweet exists
             const tweetExists = await Tweet.findById(tweetId);
             const commentExists = await TweetComment.findById(tweetId);
-            if (!tweetExists || !commentExists) {
+            // Ensure either the tweet or the comment exists, but not both
+            if ((!tweetExists && !commentExists) || (tweetExists && commentExists)) {
                 return res.status(404).send('Tweet not found.');
             }
-    
+            console.log('About to delete like ' + tweetId)
             const like = await Like.findOneAndDelete({ userId, tweetId });
             if (!like) {
                 return res.status(404).send('Like not found or already removed.');
             }
-    
-            res.status(200).send({ message: 'Like removed successfully.' });
+
+            console.log("Unliked succes " + tweetId)
+            // Get the count of likes for the tweet
+            const likeCount = await Like.countDocuments({ tweetId });
+
+            res.status(201).send({
+                like: like,
+                status: likeCount
+            });
         } catch (error) {
             res.status(500).send(error);
+        }
+    });
+
+
+    router.get('/check-like/:tweetId', async (req: Request, res: Response) => {
+        // Check if user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+    
+        try {
+            const userId = req.user as string;
+            const tweetId = req.params.tweetId;
+    
+            // Check if the user has already liked the tweet
+            const existingLike = await Like.findOne({ userId, tweetId });
+    
+            // If a like entry exists, the user has already liked the tweet
+            const isLiked = !!existingLike;
+
+            console.log(isLiked)
+    
+            // Return the result as a boolean value
+            res.status(200).json({
+                isLiked: isLiked
+            });
+        } catch (error) {
+            console.error('Error checking like:', error);
+            res.status(500).send('Internal Server Error');
         }
     });
 
