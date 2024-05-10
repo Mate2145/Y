@@ -19,11 +19,15 @@ import {MatNativeDateModule} from "@angular/material/core"
 import {MatRadioModule} from "@angular/material/radio"
 import {MatCheckboxModule} from "@angular/material/checkbox"
 import {MatDialogModule} from "@angular/material/dialog"
+import { FormsModule } from "@angular/forms";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @NgModule({
 exports:[
+    FormsModule,
     MatInputModule,
     MatSelectModule,
+    MatProgressSpinnerModule,
     MatAutocompleteModule,
     MatToolbarModule,
     MatMenuModule,

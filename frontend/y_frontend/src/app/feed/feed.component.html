@@ -31,7 +31,19 @@
     <mat-drawer-content>
         <div style="text-align: center;min-height: 800px;">
             <div class="feed-box">
-                <tweet-card></tweet-card>
+                <div class="feed-tweet">
+                    <send-tweet></send-tweet>
+                    <button mat-button (click)="getAllTweets()"><mat-icon>help</mat-icon> GetAllTweets</button>
+                    <!-- Handle empty list -->
+                    <div *ngIf="tweetList.length === 0">
+                        No tweets to display.
+                    </div>
+                    
+                    <div class="tweet-container" *ngFor="let tweet of tweetList">
+                        <tweet-card [tweet]="tweet"></tweet-card>
+                    </div>
+                    
+                </div>
                 <side-card></side-card>
             </div>
             

@@ -1,0 +1,45 @@
+<app-menubar></app-menubar>
+<mat-drawer-container autosize>
+    <mat-drawer #drawer opened="true" mode="side" position="start">
+    <mat-nav-list>
+        <mat-list-item>
+            <button routerLink="card" mat-button><mat-icon>dashboard</mat-icon> Dashboard</button>
+        </mat-list-item>
+        <mat-list-item>
+            <button routerLink="slider" mat-button><mat-icon>explore</mat-icon> Slider</button>
+        </mat-list-item>
+        <mat-list-item>
+            <button mat-button><mat-icon>settings</mat-icon> Settings</button>
+        </mat-list-item>
+        <mat-list-item>
+            <button mat-button><mat-icon>help</mat-icon> Help</button>
+        </mat-list-item>
+        <mat-list-item>
+            <button mat-button (click)="logout()"><mat-icon>help</mat-icon> Log out</button>
+        </mat-list-item>
+    </mat-nav-list>
+    </mat-drawer>
+    <mat-drawer-content>
+        <div style="text-align: center; min-height: 800px;">
+            <div class="feed-box">
+              <div class="feed-tweet">
+                <ng-container *ngIf="!isLoading; else loading">
+                  <ng-container *ngIf="tweet">
+                    <!-- Render tweet card if tweet data is available -->
+                    <tweet-card [tweet]="tweet"></tweet-card>
+                  </ng-container>
+                </ng-container>
+          
+                <ng-template #loading>
+                  <mat-spinner></mat-spinner> <!-- Material loading spinner -->
+                </ng-template>
+              </div>
+              <side-card></side-card>
+            </div>
+          
+            
+        </div>
+    </mat-drawer-content>
+</mat-drawer-container>
+
+

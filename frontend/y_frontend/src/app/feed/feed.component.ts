@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../shared/services/auth.service';
 import { Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -8,22 +8,54 @@ import { MaterialModule } from '../material-module';
 import { MenubarComponent } from '../menubar/menubar.component';
 import { TweetCardComponent } from "../shared/tweet-card/tweet-card.component";
 import { SideCardComponent } from "../shared/side-card/side-card.component";
+import { SendTweetComponent } from '../shared/send-tweet/send-tweet.component';
+import { TweetService } from '../shared/services/feed.service';
+import { error } from 'console';
+import { Tweet } from '../shared/model/Tweet';
+import { Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-feed',
     standalone: true,
     templateUrl: './feed.component.html',
     styleUrl: './feed.component.css',
-    imports: [MatInputModule, MatButtonModule, MatCardModule, MaterialModule, MenubarComponent, TweetCardComponent, SideCardComponent]
+    imports: [MatInputModule,
+       MatButtonModule,
+       MatCardModule,
+       MaterialModule,
+       MenubarComponent,
+       TweetCardComponent,
+       SideCardComponent,
+       SendTweetComponent,
+       CommonModule]
 })
-export class FeedComponent {
+export class FeedComponent implements OnInit {
+
+  tweetList:Tweet[] = []
 
   constructor(
     private authService: AuthService,
+    private feedService: TweetService,
     private router: Router,
   ) { }
 
+  ngOnInit(): void {
+    this.getAllTweets()
+  }
 
+
+  getAllTweets(){
+     this.feedService.getAllTweets().subscribe({
+      next: (data : Tweet[]) =>{
+          this.tweetList = data;
+          console.log(data);
+          console.log("This is tweetlist: " + this.tweetList[1].username);
+      }, error: (error) =>{
+          console.log(error)
+      }
+    })
+  }
 
 
   logout() {
@@ -36,4 +68,5 @@ export class FeedComponent {
       }
     });
   }
+
 }

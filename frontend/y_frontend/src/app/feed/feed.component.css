@@ -33,6 +33,16 @@
     justify-content: center;
   }
 
+  .feed-tweet{
+    min-width: 800px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+  }
+
   tweet-card{
     width: 70%;
   }
@@ -41,6 +51,12 @@
     margin-top: 25px;
     margin-right: 50px;
     min-height: 400px;
+    max-height: 500px;
+    height: auto;
     width: 30%;
+  }
+
+  send-tweet{
+    width: 70%;
   }
   
