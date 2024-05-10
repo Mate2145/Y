@@ -61,10 +61,13 @@ export const authRoutes = (passport: PassportStatic, router: Router): Router => 
 
 
     router.get('/checkAuth', (req: Request, res: Response) => {
+        console.log('Called cehckAuth')
         if (req.isAuthenticated()) {
+            console.log('Auth is true')
             res.status(200).send(true);            
         } else {
-            res.status(500).send(false);
+            console.log('Auth is false')
+            res.status(401).send(false);
         }
     });
 
