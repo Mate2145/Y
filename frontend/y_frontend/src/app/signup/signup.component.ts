@@ -9,17 +9,19 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import {MatCardModule} from '@angular/material/card';
 import { Router } from '@angular/router';
+import {MatTab, MatTabGroup} from "@angular/material/tabs";
 
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule,CommonModule,MatCardModule, MatButtonModule,MatFormFieldModule,MatInputModule,MatDatepickerModule,MatNativeDateModule],
+  imports: [ReactiveFormsModule, CommonModule, MatCardModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatDatepickerModule, MatNativeDateModule, MatTabGroup, MatTab],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.scss'
 })
 export class SignupComponent implements OnInit {
   signupForm!: FormGroup;
+  selectedTabIndex: any = 0;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -81,4 +83,11 @@ export class SignupComponent implements OnInit {
     this.signupForm.reset();
   }
 
+  nextTab() {
+    this.selectedTabIndex = 1
+  }
+
+  previousTab() {
+    this.selectedTabIndex = 0
+  }
 }

@@ -1,0 +1,28 @@
+<div class="flex-center">
+  <mat-card>
+    <img mat-card-image src="{{ user.coverPicture }}" alt="Cover photo">
+    <mat-card-header>
+      <div mat-card-avatar class="example-header-image"></div>
+      <mat-card-title>{{ user.name }}</mat-card-title>
+      <mat-card-subtitle>{{ user.bio }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        Followers: {{ user.followersCount }} - Following: {{ user.followsCount }}
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-tab-group>
+    <mat-tab label="Tweets">
+      <ng-container *ngFor="let tweet of tweets">
+        <mat-card>{{ tweet.text }}</mat-card>
+      </ng-container>
+    </mat-tab>
+    <mat-tab label="Replies">
+      <ng-container *ngFor="let reply of replies">
+        <mat-card>{{ reply.text }}</mat-card>
+      </ng-container>
+    </mat-tab>
+  </mat-tab-group>
+</div>

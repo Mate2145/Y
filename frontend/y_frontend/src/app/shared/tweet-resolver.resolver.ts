@@ -1,6 +1,6 @@
 import { ResolveFn } from '@angular/router';
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { Observable } from 'rxjs';  // Assuming this service exists and is properly set up
+import { Observable } from 'rxjs';
 import { TweetService } from './services/feed.service';
 import { Injectable } from '@angular/core';
 
@@ -13,6 +13,7 @@ export class TweetResolver implements Resolve<any> {
   resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<any> {
     const tweetId = route.paramMap.get('id');
     if (tweetId) {
+      console.log("Amugy a resolver az")
       return this.tweetService.getTweetById(tweetId);
     } else {
       // Handle the case where tweetId is not available

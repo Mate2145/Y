@@ -1,0 +1,50 @@
+/* Profile Card Styles */
+mat-card {
+  margin: 20px;
+  width: 70%;
+}
+
+mat-tab-group{
+  width: 70%;
+}
+
+.flex-center{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+}
+
+.example-header-image {
+  background-image: url('https://variety.com/wp-content/uploads/2023/03/Twitter.png?w=1000');
+  width: 40px; /* Adjust size as needed */
+  height: 40px; /* Adjust size as needed */
+  border-radius: 50%;
+}
+
+mat-card-header {
+  align-items: center;
+}
+
+mat-card-title,
+mat-card-subtitle {
+  margin-left: 10px;
+}
+
+/* Cover Image Style */
+mat-card img {
+  width: 100%;
+  height: 300px; /* Maintain aspect ratio */
+  object-fit: cover; /* Ensures cover image is well fitted */
+}
+
+/* Tabs Layout */
+mat-tab-group {
+  margin: 20px;
+}
+
+/* Individual Tweet and Reply Card */
+mat-card {
+  margin-bottom: 10px; /* Space between tweet/reply cards */
+}

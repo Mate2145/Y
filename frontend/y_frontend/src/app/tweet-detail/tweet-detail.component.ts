@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +13,8 @@ import { TweetService } from '../shared/services/feed.service';
 import { AuthService } from '../shared/services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, switchMap,of } from 'rxjs';
+import {SendCommentComponent} from "../shared/send-comment/send-comment.component";
+import {Tweet} from "../shared/model/Tweet";
 
 @Component({
   selector: 'tweet-detail',
@@ -26,7 +28,7 @@ import { Observable, switchMap,of } from 'rxjs';
     TweetCardComponent,
     SideCardComponent,
     SendTweetComponent,
-    CommonModule],
+    CommonModule, SendCommentComponent],
   templateUrl: './tweet-detail.component.html',
   styleUrl: './tweet-detail.component.css'
 })
@@ -34,23 +36,45 @@ export class TweetDetailsComponent implements OnInit {
   tweet: any; // Declare a variable to store the tweet details
   tweetId?: string;
   isLoading:boolean = true
+  tweetList: Tweet[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
     private tweetService: TweetService,
-    private router: Router
+    private router: Router,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.route.data.subscribe({
       next: (data: any) =>{
-        this.tweet = data.tweet
+        console.log("YO EZ A DATA")
+        console.log(data.tweet.tweet.text)
+        this.tweet = {
+          ...data.tweet.tweet,
+          likeCount: data.tweet.likeCount,
+          commentCount: data.tweet.commentCount
+        };
+        console.log(this.tweet)
+        this.getTweetComments(this.tweet._id)
         this.isLoading = false
+        this.cdRef.detectChanges()
       },error: (error) =>{
         console.log(error)
       }
     });
+  }
+
+  getTweetComments(parentId:string){
+    this.tweetService.getCommentsbyParentId(parentId).subscribe({
+      next: (data:any) =>{
+        console.log(data)
+        this.tweetList = data
+      },error: (error) =>{
+        console.log(error)
+      }
+    })
   }
 
   logout() {
@@ -62,5 +86,13 @@ export class TweetDetailsComponent implements OnInit {
         console.log(err);
       }
     });
+  }
+
+  handleTweetDeletion(id:string) {
+    this.router.navigateByUrl("/feed")
+  }
+
+  handleComment($event: boolean) {
+    this.getTweetComments(this.tweet._id)
   }
 }

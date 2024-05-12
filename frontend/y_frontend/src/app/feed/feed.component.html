@@ -32,21 +32,21 @@
         <div style="text-align: center;min-height: 800px;">
             <div class="feed-box">
                 <div class="feed-tweet">
-                    <send-tweet></send-tweet>
+                    <send-tweet (tweetCreated)="handleTweetCreation($event)"></send-tweet>
                     <button mat-button (click)="getAllTweets()"><mat-icon>help</mat-icon> GetAllTweets</button>
                     <!-- Handle empty list -->
                     <div *ngIf="tweetList.length === 0">
                         No tweets to display.
                     </div>
-                    
+
                     <div class="tweet-container" *ngFor="let tweet of tweetList">
-                        <tweet-card [tweet]="tweet"></tweet-card>
+                        <tweet-card [tweet]="tweet" (tweetDeleted)="handleTweetDeleted($event)"></tweet-card>
                     </div>
-                    
+
                 </div>
                 <side-card></side-card>
             </div>
-            
+
         </div>
     </mat-drawer-content>
 </mat-drawer-container>

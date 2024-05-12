@@ -10,7 +10,6 @@ import { TweetCardComponent } from "../shared/tweet-card/tweet-card.component";
 import { SideCardComponent } from "../shared/side-card/side-card.component";
 import { SendTweetComponent } from '../shared/send-tweet/send-tweet.component';
 import { TweetService } from '../shared/services/feed.service';
-import { error } from 'console';
 import { Tweet } from '../shared/model/Tweet';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -50,11 +49,14 @@ export class FeedComponent implements OnInit {
       next: (data : Tweet[]) =>{
           this.tweetList = data;
           console.log(data);
-          console.log("This is tweetlist: " + this.tweetList[1].username);
       }, error: (error) =>{
           console.log(error)
       }
     })
+  }
+
+  handleTweetDeleted(tweetId: string) {
+    this.tweetList = this.tweetList.filter(tweet => tweet._id !== tweetId);
   }
 
 
@@ -69,4 +71,9 @@ export class FeedComponent implements OnInit {
     });
   }
 
+  handleTweetCreation(tweet: boolean) {
+    if (tweet){
+      this.getAllTweets()
+    }
+  }
 }

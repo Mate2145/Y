@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of, retry, throwError } from 'rxjs';
 import { Tweet } from '../model/Tweet';
+import { Comment } from '../model/Comment';
 
 @Injectable({
   providedIn: 'root'
@@ -39,12 +40,28 @@ export class TweetService {
     return this.http.get(url,{withCredentials:true});
   }
 
+  getCommentsbyParentId(id: string){
+    const url = `${this.apiUrl}/commentswithcount/${id}`;
+    return this.http.get(url,{withCredentials:true});
+  }
+
 
   postTweet(tweet: Tweet): Observable<Tweet> {
     return this.http.post<Tweet>(this.apiUrl + "tweet", tweet, {headers: this.headersTweet, withCredentials: true})
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+  deleteTweetbyId(id: string) {
+    const url = `${this.apiUrl}tweets/${id}`;
+    return this.http.delete(url,{withCredentials:true});
+  }
+
+  editTweetbyId(id: string, text: string) {
+    const url = `${this.apiUrl}tweets/${id}`;
+    const data = { text: text };  // Prepare the data object to be patched
+    return this.http.patch(url, data, { withCredentials: true });
   }
 
   likeTweet(tweetid: string){

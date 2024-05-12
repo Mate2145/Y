@@ -3,7 +3,7 @@
     <mat-drawer #drawer opened="true" mode="side" position="start">
     <mat-nav-list>
         <mat-list-item>
-            <button routerLink="card" mat-button><mat-icon>dashboard</mat-icon> Dashboard</button>
+            <button routerLink="feed" mat-button><mat-icon>dashboard</mat-icon> Dashboard</button>
         </mat-list-item>
         <mat-list-item>
             <button routerLink="slider" mat-button><mat-icon>explore</mat-icon> Slider</button>
@@ -26,18 +26,26 @@
                 <ng-container *ngIf="!isLoading; else loading">
                   <ng-container *ngIf="tweet">
                     <!-- Render tweet card if tweet data is available -->
-                    <tweet-card [tweet]="tweet"></tweet-card>
+                    <tweet-card (tweetDeleted)="handleTweetDeletion($event)" [tweet]="tweet"></tweet-card>
                   </ng-container>
+                  <send-comment (postComment)="handleComment($event)" [parentId]="tweet._id"></send-comment>
+                  <div *ngIf="tweetList.length === 0">
+                    No tweets to display.
+                  </div>
+
+                  <div class="tweet-container" *ngFor="let tweet of tweetList">
+                    <tweet-card [tweet]="tweet" (tweetDeleted)="handleTweetDeletion($event)"></tweet-card>
+                  </div>
                 </ng-container>
-          
+
                 <ng-template #loading>
                   <mat-spinner></mat-spinner> <!-- Material loading spinner -->
                 </ng-template>
               </div>
               <side-card></side-card>
             </div>
-          
-            
+
+
         </div>
     </mat-drawer-content>
 </mat-drawer-container>

@@ -1,28 +1,41 @@
-import {Component, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import { MaterialModule } from '../../material-module';
-import { CommonModule } from '@angular/common';
-import { Tweet } from '../model/Tweet';
-import { TweetService } from '../services/feed.service';
-import { catchError } from 'rxjs';
-import { Route, Router } from '@angular/router';
-import {ConfirmDialogComponent} from "../confirm-dialog/confirm-dialog.component";
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {MatButton} from "@angular/material/button";
+import {MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardTitle} from "@angular/material/card";
+import {MatIcon} from "@angular/material/icon";
+import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
+import {NgIf} from "@angular/common";
+import {Comment} from "../model/Comment";
+import {TweetService} from "../services/feed.service";
+import {Router} from "@angular/router";
 import {MatDialog} from "@angular/material/dialog";
-import { EventEmitter } from '@angular/core';
-import {EditDialogComponent} from "../edit-dialog/edit-dialog.component";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {ConfirmDialogComponent} from "../confirm-dialog/confirm-dialog.component";
+import {EditDialogComponent} from "../edit-dialog/edit-dialog.component";
 
 @Component({
-  selector: 'tweet-card',
+  selector: 'app-comment-card',
   standalone: true,
-  imports: [MaterialModule,CommonModule],
-  templateUrl: './tweet-card.component.html',
-  styleUrl: './tweet-card.component.css'
+  imports: [
+    MatButton,
+    MatCard,
+    MatCardActions,
+    MatCardContent,
+    MatCardHeader,
+    MatCardTitle,
+    MatIcon,
+    MatMenu,
+    MatMenuItem,
+    NgIf,
+    MatMenuTrigger
+  ],
+  templateUrl: './comment-card.component.html',
+  styleUrl: './comment-card.component.css'
 })
-export class TweetCardComponent implements OnChanges {
+export class CommentCardComponent implements OnInit{
 
   isLiked: boolean = false
   @Input()
-  tweet!: Tweet;
+  comment!: Comment;
   @Output() tweetDeleted = new EventEmitter<string>();
 
   constructor(
@@ -36,27 +49,19 @@ export class TweetCardComponent implements OnChanges {
 
   }
   ngOnInit(): void {
-    console.log(this.tweet)
+    console.log(this.comment)
     this.isLikedTweet()
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    console.log(changes)
-    if (changes['tweet'] && !changes['tweet'].isFirstChange()) {
-      this.isLikedTweet();
-    }
-  }
-
   openTweet(){
-    console.log(this.tweet._id)
-    this.navigate("/tweet/" + this.tweet._id)
+    console.log(this.comment._id)
+    this.navigate("/tweet/" + this.comment._id)
   }
 
   isLikedTweet(){
-    if(this.tweet){
-      this.tweetService.isLiked(this.tweet._id as string).subscribe({
+    if(this.comment){
+      this.tweetService.isLiked(this.comment._id as string).subscribe({
         next: (data: any) =>{
-          console.log(this.tweet.text)
           console.log(data)
           this.isLiked = data.isLiked
         },error: (error) =>{
@@ -72,12 +77,12 @@ export class TweetCardComponent implements OnChanges {
   likeTweet() {
     if(!this.isLiked){
       console.log('Liked the tweet!');
-      console.log(this.tweet._id)
-      this.tweetService.likeTweet(this.tweet._id as string).subscribe({
+      console.log(this.comment._id)
+      this.tweetService.likeTweet(this.comment._id as string).subscribe({
         next: (data : any) =>{
           console.log(data)
           this.isLiked = true;
-          this.tweet.likeCount = data.status as string
+          this.comment.likeCount = data.status as string
         },error: (error) =>{
           console.log(error)
         }
@@ -85,11 +90,11 @@ export class TweetCardComponent implements OnChanges {
     }
     else{
       console.log('Unlike tweet')
-      this.tweetService.unlikeTweet(this.tweet._id as string).subscribe({
+      this.tweetService.unlikeTweet(this.comment._id as string).subscribe({
         next: (data : any) =>{
           console.log(data)
           this.isLiked = false;
-          this.tweet.likeCount = data.status as string
+          this.comment.likeCount = data.status as string
         },error: (error) =>{
           console.log(error)
         }
@@ -111,9 +116,9 @@ export class TweetCardComponent implements OnChanges {
     this.tweetService.getTweetById(id).subscribe({
       next: (data: any) =>{
         console.log(data)
-        this.tweet = data.tweet
-        this.tweet.commentCount = data.commentCount
-        this.tweet.likeCount = data.likeCount
+        this.comment = data.tweet
+        this.comment.commentCount = data.commentCount
+        this.comment.likeCount = data.likeCount
       },error: (error) =>{
         console.log(error)
       }
@@ -127,22 +132,22 @@ export class TweetCardComponent implements OnChanges {
         title: 'Confirm Delete',
         content: 'Are you sure you want to delete this tweet?',
         submitBtnText: 'Delete',
-        tweetId: this.tweet._id
+        tweetId: this.comment._id
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.deleteTweet()
-        this.tweetDeleted.emit(this.tweet._id);
+        this.deleteTweet();
+        this.tweetDeleted.emit(this.comment._id);
       }
     });
   }
 
 
   deleteTweet() {
-    if (this.tweet._id){
-      this.tweetService.deleteTweetbyId(this.tweet._id).subscribe({
+    if (this.comment._id){
+      this.tweetService.deleteTweetbyId(this.comment._id).subscribe({
         next: (data) =>{
           console.log(data)
           this.snackbar.open('Success!', 'Close', {
@@ -160,12 +165,19 @@ export class TweetCardComponent implements OnChanges {
         }
       })
     }
+    else {
+      this.snackbar.open('There is no ID!', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom'
+      });
+    }
   }
 
   openEditDialog(): void {
     const dialogRef = this.dialog.open(EditDialogComponent, {
       width: '250px',
-      data: { tweetText: this.tweet.text } // Pass current tweet text
+      data: { tweetText: this.comment.text } // Pass current tweet text
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -178,8 +190,8 @@ export class TweetCardComponent implements OnChanges {
 
   updateTweet(text: string) {
     console.log(text)
-    if (this.tweet._id){
-      this.tweetService.editTweetbyId(this.tweet._id,text).subscribe({
+    if (this.comment._id){
+      this.tweetService.editTweetbyId(this.comment._id,text).subscribe({
         next: (data:any) =>{
           console.log(data)
           this.snackbar.open('Edit tweet succesfully!', 'Close', {

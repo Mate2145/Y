@@ -1,6 +1,6 @@
-<mat-card class="tweet-card" *ngIf="tweet">
+<mat-card class="tweet-card" *ngIf="comment">
   <mat-card-header>
-    <mat-card-title>{{ tweet.username }}</mat-card-title>
+    <mat-card-title>{{ comment.username }}</mat-card-title>
     <mat-icon [matMenuTriggerFor]="menu">more_vert</mat-icon>
     <mat-menu #menu="matMenu">
       <button mat-menu-item (click)="openDeleteConfirmDialog()">
@@ -9,19 +9,19 @@
       </button>
       <button mat-menu-item (click)="openEditDialog()">
         <mat-icon>edit</mat-icon>
-        Edit
+        Delete
       </button>
     </mat-menu>
   </mat-card-header>
   <mat-card-content (click)="openTweet()">
-    <p>{{ tweet.text }}</p>
+    <p>{{ comment.text }}</p>
   </mat-card-content>
   <mat-card-actions align="end">
-    <span>{{ tweet.likeCount }}</span>
+    <span>{{ comment.likeCount }}</span>
     <button mat-button (click)="likeTweet()" [color]="isLiked ? 'warn' : 'primary'">
       <mat-icon>thumb_up</mat-icon> Like
     </button>
-    <span>{{ tweet.commentCount }}</span>
+    <span>{{ comment.commentCount }}</span>
     <button mat-button (click)="commentOnTweet()">
       <mat-icon>comment</mat-icon> Comment
     </button>

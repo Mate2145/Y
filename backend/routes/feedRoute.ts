@@ -30,7 +30,7 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             // Map each tweet to a promise that resolves to the tweet plus its like and comment counts
             const tweetsWithCounts = await Promise.all(tweets.map(async tweet => {
                 const likeCount = await Like.countDocuments({ tweetId: tweet._id });
-                const commentCount = await TweetComment.countDocuments({ tweetId: tweet._id });
+                const commentCount = await Tweet.countDocuments({ parentId: tweet._id });
                 return {
                     ...tweet.toObject(), // Convert Mongoose document to a plain JavaScript object
                     likeCount,
@@ -39,6 +39,34 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             }));
     
             res.status(200).send(tweetsWithCounts);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
+    router.get('/commentswithcount/:parentId', async (req, res) => {
+        try {
+            // Ensure parentId is provided in the request body
+            const parentId = req.params.parentId as string;
+            if (!parentId) {
+                return res.status(400).send('Parent ID is required');
+            }
+
+            // Query to find all comments related to the given parentId
+            const tweets = await Tweet.find({ parentId: parentId }).sort({ createdAt: -1 });
+
+            // Map each comment to a promise that resolves to the comment plus its like and comment counts
+            const commentsWithCounts = await Promise.all(tweets.map(async tweet => {
+                const likeCount = await Like.countDocuments({ tweetId: tweet._id});
+                const commentCount = await Tweet.countDocuments({ parentId: tweet._id});
+                return {
+                    ...tweet.toObject(), // Convert Mongoose document to a plain JavaScript object
+                    likeCount,
+                    commentCount
+                };
+            }));
+
+            res.status(200).send(commentsWithCounts);
         } catch (error) {
             res.status(500).send(error);
         }
@@ -85,7 +113,7 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
         try {
             console.log("About to update Tweet")
             const text = req.body.text;
-            const currentUserId = req.user
+            const currentUserId = req.user as mongoose.Schema.Types.ObjectId
 
             const tweet = await Tweet.findById(req.params.id);
             if (!tweet) {
@@ -101,7 +129,8 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             if (!tweetresult) {
                 return res.status(404).send('Tweet not found');
             }
-            res.status(200).send(tweet);
+            console.log(tweetresult)
+            res.status(200).send(tweetresult);
         } catch (error) {
             res.status(500).send(error);
         }
@@ -161,16 +190,26 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             console.log(req.body)
             console.log(userid)
             const username = user?.nickname
-            const text = req.body.text
+            const {text,parentId} = req.body
             if (!mongoose.Types.ObjectId.isValid(userid)) {
                 return res.status(400).send('Invalid user ID.');
             }
             console.log("Creating Tweet with userId " + userid + " " + "text " + text)
-            const tweet = new Tweet({
+            const tweetData = {
                 userId: userid,
+                username: username,
                 text: text,
-                username: username
-            });
+                parentId:null
+            };
+
+            // If parentId is provided and valid, include it in the tweet data
+            if (parentId) {
+                if (!mongoose.Types.ObjectId.isValid(parentId)) {
+                    return res.status(400).send('Invalid parent ID.');
+                }
+                tweetData.parentId = parentId; // Add parentId to the tweet data
+            }
+            const tweet = new Tweet(tweetData)
             console.log(tweet)
             await tweet.save();
             return res.status(201).send(tweet);
@@ -361,43 +400,6 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
     });
 
 
-    router.post('/comment', async (req, res) => {
-        // Check if the user is authenticated
-        if (!req.isAuthenticated()) {
-            return res.status(401).send('User is not authenticated.');
-        }
-    
-        try {
-            const { userId, tweetId, text, username } = req.body;
-    
-            // Validate user and tweet IDs
-            if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(tweetId)) {
-                return res.status(400).send('Invalid userId or tweetId.');
-            }
-
-    
-            // Check if the referenced tweet exists
-            const tweetExists = await Tweet.findById(tweetId);
-            const commentExist = await TweetComment.findById(tweetId)
-            if (!tweetExists || !commentExist) {
-                return res.status(404).send('Tweet or Comment not found.');
-            }
-    
-            // Create and save the new comment
-            const comment = new TweetComment({
-                userId: userId,
-                tweetId: tweetId,
-                text: text,
-                username: username
-            });
-    
-            await comment.save();
-            res.status(201).send(comment);
-        } catch (error) {
-            res.status(500).send(error);
-        }
-    });
-    
     router.delete('/comments/:id', async (req, res) => {
         if (!req.isAuthenticated()) {
             return res.status(401).send('User is not authenticated.');

@@ -21,11 +21,13 @@ import {MatCheckboxModule} from "@angular/material/checkbox"
 import {MatDialogModule} from "@angular/material/dialog"
 import { FormsModule } from "@angular/forms";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import {MatSnackBar, MatSnackBarModule} from "@angular/material/snack-bar";
 
 @NgModule({
 exports:[
     FormsModule,
     MatInputModule,
+    MatSnackBarModule,
     MatSelectModule,
     MatProgressSpinnerModule,
     MatAutocompleteModule,
