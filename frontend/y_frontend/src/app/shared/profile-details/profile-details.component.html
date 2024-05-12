@@ -1,10 +1,13 @@
-<div class="flex-center">
+<div class="flex-center" *ngIf="user; else tweetLoading">
   <mat-card>
     <img mat-card-image src="{{ user.coverPicture }}" alt="Cover photo">
     <mat-card-header>
       <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>{{ user.name }}</mat-card-title>
+      <mat-card-title>{{ user.username }}</mat-card-title>
       <mat-card-subtitle>{{ user.bio }}</mat-card-subtitle>
+      <button
+        (click)="followUser(user._id)" mat-flat-button color="primary" [disabled]="isSameId" [color]="isFollowed ? 'warn' : 'accent'">{{ isFollowed ? 'Unfollow' : 'Follow' }}
+      </button>
     </mat-card-header>
     <mat-card-content>
       <p>
@@ -15,14 +18,28 @@
 
   <mat-tab-group>
     <mat-tab label="Tweets">
-      <ng-container *ngFor="let tweet of tweets">
-        <mat-card>{{ tweet.text }}</mat-card>
+      <ng-container *ngIf="tweets; else tweetLoading">
+        <ng-container *ngFor="let tweet of tweets">
+          <tweet-card [tweet]="tweet.tweet" [isFooter]="false"></tweet-card>
+        </ng-container>
       </ng-container>
     </mat-tab>
     <mat-tab label="Replies">
-      <ng-container *ngFor="let reply of replies">
-        <mat-card>{{ reply.text }}</mat-card>
+      <ng-container *ngIf="Tweetreplies; else tweetLoading">
+        <ng-container *ngFor="let tweetWithReplies of Tweetreplies">
+          <tweet-card [tweet]="tweetWithReplies.parentTweet"></tweet-card>
+          <ng-container *ngFor="let reply of tweetWithReplies.replies">
+            <div style="margin-left: 49px; margin-top: -44px">
+              <tweet-card class="tweet-card-intend" [isFooter]="false" [tweet]="reply"></tweet-card>
+            </div>
+          </ng-container>
+        </ng-container>
       </ng-container>
     </mat-tab>
   </mat-tab-group>
 </div>
+
+<ng-template #tweetLoading>
+  <mat-spinner></mat-spinner>
+</ng-template>
+

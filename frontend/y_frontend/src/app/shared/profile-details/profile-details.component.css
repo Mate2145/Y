@@ -48,3 +48,11 @@ mat-tab-group {
 mat-card {
   margin-bottom: 10px; /* Space between tweet/reply cards */
 }
+
+.tweet-card-intend {
+  margin-left: 30px; /* Adjust the value as needed */
+}
+
+tweet-card{
+  margin: 0;
+}

@@ -23,6 +23,8 @@ export class TweetCardComponent implements OnChanges {
   isLiked: boolean = false
   @Input()
   tweet!: Tweet;
+  @Input() isFooter:boolean = true
+  checkedTweet: boolean = false
   @Output() tweetDeleted = new EventEmitter<string>();
 
   constructor(
@@ -59,6 +61,27 @@ export class TweetCardComponent implements OnChanges {
           console.log(this.tweet.text)
           console.log(data)
           this.isLiked = data.isLiked
+          this.checkTweet();
+        },error: (error) =>{
+          console.log(error)
+        }
+      })
+    }
+    else{
+      {return}
+    }
+  }
+
+  checkTweet(){
+    console.log("Hali")
+    if(this.tweet){
+      console.log("Ya")
+      this.tweetService.checkTweet(this.tweet.userId as string).subscribe({
+        next: (data: any) =>{
+          console.log("Check tweet")
+          console.log(data)
+          this.checkedTweet = data.checkTweet
+          console.log(this.checkedTweet)
         },error: (error) =>{
           console.log(error)
         }
@@ -209,4 +232,7 @@ export class TweetCardComponent implements OnChanges {
     //this.tweet.text = text;
   }
 
+  openProfile() {
+    this.router.navigateByUrl('profile/' + this.tweet.userId)
+  }
 }

@@ -1,22 +1,24 @@
 <mat-card class="tweet-card" *ngIf="tweet">
   <mat-card-header>
-    <mat-card-title>{{ tweet.username }}</mat-card-title>
-    <mat-icon [matMenuTriggerFor]="menu">more_vert</mat-icon>
-    <mat-menu #menu="matMenu">
-      <button mat-menu-item (click)="openDeleteConfirmDialog()">
-        <mat-icon>delete</mat-icon>
-        Delete
-      </button>
-      <button mat-menu-item (click)="openEditDialog()">
-        <mat-icon>edit</mat-icon>
-        Edit
-      </button>
-    </mat-menu>
+    <mat-card-title (click)="openProfile()">{{ tweet.username }}</mat-card-title>
+    <div *ngIf="checkedTweet">
+      <mat-icon [matMenuTriggerFor]="menu">more_vert</mat-icon>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="openDeleteConfirmDialog()">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+        <button mat-menu-item (click)="openEditDialog()">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+      </mat-menu>
+    </div>
   </mat-card-header>
   <mat-card-content (click)="openTweet()">
     <p>{{ tweet.text }}</p>
   </mat-card-content>
-  <mat-card-actions align="end">
+  <mat-card-actions align="end" *ngIf="isFooter">
     <span>{{ tweet.likeCount }}</span>
     <button mat-button (click)="likeTweet()" [color]="isLiked ? 'warn' : 'primary'">
       <mat-icon>thumb_up</mat-icon> Like

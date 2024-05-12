@@ -6,8 +6,7 @@ const SALT_FACTOR = 10;
 interface IUser extends Document {
     _id: mongoose.Types.ObjectId;
     email: string;
-    name?: string;
-    address?: string;
+    bio: string;
     nickname: string;
     password: string;
     birthday?: Date

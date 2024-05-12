@@ -11,6 +11,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import { authRoutes } from './routes/authRoutes';
 import { feedRoutes } from './routes/feedRoute';
+import {userRoutes} from "./routes/userRoutes";
 
 const app = express();
 const port = 5000;
@@ -63,6 +64,7 @@ configurePassport(passport);
 app.use('/app', configureRoutes(passport, express.Router()));
 app.use('/auth', authRoutes(passport, express.Router()));
 app.use('/feed', feedRoutes(passport, express.Router()));
+app.use('/user', userRoutes(passport, express.Router()));
 
 app.listen(port, () => {
     console.log('Server is listening on port ' + port.toString());

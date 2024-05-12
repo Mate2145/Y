@@ -40,6 +40,14 @@ export class TweetService {
     return this.http.get(url,{withCredentials:true});
   }
 
+  getTweetsbyUserId(userId:string){
+    return this.http.get(this.apiUrl + "tweet-user/" + userId,{withCredentials: true});
+  }
+
+  getRepliesbyUserIdwithParent(userId:string){
+    return this.http.get(this.apiUrl + "tweet-user-replies/" + userId,{withCredentials: true});
+  }
+
   getCommentsbyParentId(id: string){
     const url = `${this.apiUrl}/commentswithcount/${id}`;
     return this.http.get(url,{withCredentials:true});
@@ -80,6 +88,11 @@ export class TweetService {
   isLiked(tweetId: string): Observable<{ isLiked: boolean }> {
     const url = `${this.apiUrl}/check-like/${tweetId}`;
     return this.http.get<{ isLiked: boolean }>(url,{withCredentials:true});
+  }
+
+  checkTweet(userId: string): Observable<{ checkTweet: boolean }> {
+    const url = `${this.apiUrl}/check-tweet/${userId}`;
+    return this.http.get<{ checkTweet: boolean }>(url,{withCredentials:true});
   }
 
   // Error handling

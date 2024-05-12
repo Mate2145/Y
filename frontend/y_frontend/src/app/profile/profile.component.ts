@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {MaterialModule} from "../material-module";
 import {MatTab, MatTabGroup} from "@angular/material/tabs";
 import {Tweet} from "../shared/model/Tweet";
@@ -9,6 +9,8 @@ import {SendTweetComponent} from "../shared/send-tweet/send-tweet.component";
 import {SideCardComponent} from "../shared/side-card/side-card.component";
 import {TweetCardComponent} from "../shared/tweet-card/tweet-card.component";
 import {ProfileDetailsComponent} from "../shared/profile-details/profile-details.component";
+import {ActivatedRoute, Router} from "@angular/router";
+import {UserService} from "../shared/services/user.service";
 
 @Component({
   selector: 'app-profile',
@@ -17,33 +19,36 @@ import {ProfileDetailsComponent} from "../shared/profile-details/profile-details
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
-export class ProfileComponent {
-  user: any;
+export class ProfileComponent implements OnInit{
+  user: any = {};
   tweets: any[] = [];
   replies: any[] = [];
   userId = 'user123';  // Example user ID
 
-  constructor(private tweetService: TweetService) {}
+  constructor(private tweetService: TweetService,
+              private route:ActivatedRoute,
+              private userService: UserService,
+              private router:Router) {}
 
   ngOnInit(): void {
-    this.user = {
-      name:"Matter",
-      bio:"This is my bio",
-      coverPicture: "https://variety.com/wp-content/uploads/2023/03/Twitter.png?w=1000",
-      followersCount: "50",
-      followsCount: "100"
-    }
-    this.tweetService.getAllTweets().subscribe({
-      next: (data) => this.tweets = data,
-      error: (error) => console.error('Failed to fetch tweets', error)
-    });
-    this.tweetService.getAllTweets().subscribe({
-      next: (data) => this.replies = data,
-      error: (error) => console.error('Failed to fetch replies', error)
+    this.route.data.subscribe({
+      next: (data: any) =>{
+        console.log("YO EZ A DATA")
+        console.log(data)
+        this.user._id = data.user._id
+        this.user.username = data.user.username
+        this.user.followsCount = data.user.followeeCount
+        this.user.followersCount = data.user.followerCount
+        this.user.coverPicture = "https://variety.com/wp-content/uploads/2023/03/Twitter.png?w=1000"
+        this.user.bio = "This is my bio"
+      },error: (error) =>{
+        console.log(error)
+      }
     });
   }
 
-  logout() {
 
+  logout() {
+    this.router.navigateByUrl('/logout')
   }
 }

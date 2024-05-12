@@ -8,7 +8,7 @@ import { TweetCardComponent } from '../shared/tweet-card/tweet-card.component';
 import { SideCardComponent } from '../shared/side-card/side-card.component';
 import { SendTweetComponent } from '../shared/send-tweet/send-tweet.component';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import { TweetService } from '../shared/services/feed.service';
 import { AuthService } from '../shared/services/auth.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -28,7 +28,7 @@ import {Tweet} from "../shared/model/Tweet";
     TweetCardComponent,
     SideCardComponent,
     SendTweetComponent,
-    CommonModule, SendCommentComponent],
+    CommonModule, SendCommentComponent, RouterLink],
   templateUrl: './tweet-detail.component.html',
   styleUrl: './tweet-detail.component.css'
 })
@@ -49,7 +49,6 @@ export class TweetDetailsComponent implements OnInit {
   ngOnInit() {
     this.route.data.subscribe({
       next: (data: any) =>{
-        console.log("YO EZ A DATA")
         console.log(data.tweet.tweet.text)
         this.tweet = {
           ...data.tweet.tweet,
@@ -86,6 +85,10 @@ export class TweetDetailsComponent implements OnInit {
         console.log(err);
       }
     });
+  }
+
+  navigate(url:string){
+    this.router.navigateByUrl(url)
   }
 
   handleTweetDeletion(id:string) {

@@ -8,6 +8,7 @@ import { Like } from '../model/Like';
 import { TweetComment } from '../model/TweetComment';
 import { Follow } from '../model/Follow';
 import { UserService } from '../service/UserService';
+import * as repl from "repl";
 
 
 export const feedRoutes = (passport: PassportStatic, router: Router): Router => {
@@ -101,6 +102,95 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             res.status(500).send(error);
         }
     });
+
+    router.get('/tweet-user/:userId', async (req, res) => {
+        // Check if the user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('User is not authenticated.');
+        }
+
+        try {
+            let userId = req.params.userId as string
+            if (userId != ''){
+                userId = req.user as string
+            }
+
+            // Find tweets by userId
+            const tweets = await Tweet.find({ userId: req.params.userId,parentId: null });
+
+            if (!tweets) {
+                return res.status(404).send('Tweets not found for the user.');
+            }
+
+            // Array to store tweets with like and comment counts
+            const tweetsWithCounts = [];
+
+            // Loop through each tweet to count likes and comments
+            for (const tweet of tweets) {
+                // Count likes and comments for the tweet
+                const likeCount = await Like.countDocuments({ tweetId: tweet._id });
+                const commentCount = await TweetComment.countDocuments({ tweetId: tweet._id });
+
+                // Add tweet with counts to the array
+                tweetsWithCounts.push({
+                    tweet,
+                    likeCount,
+                    commentCount
+                });
+            }
+
+            // Return the tweets along with the counts of likes and comments
+            res.status(200).send(tweetsWithCounts);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
+
+    router.get('/tweet-user-replies/:userId', async (req, res) => {
+        try {
+            // Check if the user is authenticated
+            if (!req.isAuthenticated()) {
+                return res.status(401).send('User is not authenticated.');
+            }
+
+            let userId = req.params.userId as string;
+            if (userId !== '') {
+                userId = req.user as string; // Assuming req.user is a valid user object
+            }
+
+            // Find parent tweets by userId
+            const parentTweets = await Tweet.find({ userId:userId, parentId: null }).sort({ createdAt: -1 });
+
+            // Array to store parent tweets and their corresponding replies
+            const tweetsWithReplies = [];
+
+            // Loop through each parent tweet to find its replies
+            for (const parentTweet of parentTweets) {
+                // Find replies (comments) for the parent tweet
+                const replies = await Tweet.find({ userId:userId, parentId: parentTweet._id }).sort({ createdAt: 1 });
+                if (!replies){
+                    tweetsWithReplies.push({
+                        parentTweet: parentTweet,
+                        replies: replies
+                    });
+                }
+                else {
+                    // Add parent tweet and its replies to the array
+                    tweetsWithReplies.push({
+                        parentTweet: parentTweet,
+                        replies: replies
+                    });
+                }
+            }
+
+            // Return the array containing parent tweets and their replies
+            res.status(200).send(tweetsWithReplies);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
 
     // UPDATE a tweet
     router.patch('/tweets/:id', async (req, res) => {
@@ -217,60 +307,6 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             return res.status(500).send(error);
         }
     });
-
-    router.post('/follow', async (req, res) => {
-        if (!req.isAuthenticated()) {
-            return res.status(401).send('Authentication required');
-        }
-    
-        const { followingId,followerId } = req.body;
-    
-        if (!mongoose.Types.ObjectId.isValid(followingId) && !mongoose.Types.ObjectId.isValid(followerId)) {
-            return res.status(400).send('Invalid user ID.');
-        }
-    
-        try {
-            const existingFollow = await Follow.findOne({ follower: followerId, following: followingId });
-            if (existingFollow) {
-                return res.status(409).send('Already following this user.');
-            }
-    
-            const follow = new Follow({
-                follower: followerId,
-                following: followingId
-            });
-    
-            await follow.save();
-            res.status(201).send({ message: 'Followed successfully' });
-        } catch (error) {
-            res.status(500).send(error);
-        }
-    });
-
-    router.delete('/unfollow', async (req, res) => {
-        if (!req.isAuthenticated()) {
-            return res.status(401).send('Authentication required');
-        }
-        const { followingId,followerId } = req.body;
-    
-        if (!mongoose.Types.ObjectId.isValid(followingId) || !mongoose.Types.ObjectId.isValid(followerId)) {
-            return res.status(400).send('Invalid user ID.');
-        }
-    
-        try {
-            const result = await Follow.findOneAndDelete({ follower: followerId, following: followingId });
-            if (!result) {
-                return res.status(404).send('Follow relationship not found.');
-            }
-    
-            res.status(200).send({ message: 'Unfollowed successfully' });
-        } catch (error) {
-            res.status(500).send(error);
-        }
-    });
-    
-    
-
 
     router.post('/like', async (req, res) => {
         if (!req.isAuthenticated()) {
@@ -392,6 +428,33 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             // Return the result as a boolean value
             res.status(200).json({
                 isLiked: isLiked
+            });
+        } catch (error) {
+            console.error('Error checking like:', error);
+            res.status(500).send('Internal Server Error');
+        }
+    });
+
+    router.get('/check-tweet/:userId', async (req: Request, res: Response) => {
+        // Check if user is authenticated
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+
+        try {
+            const authuserId = req.user as string;
+            const userId = req.params.userId;
+            let checkTweet = false
+            if (authuserId == userId){
+                checkTweet = !checkTweet
+            }
+
+
+            console.log(checkTweet)
+
+            // Return the result as a boolean value
+            res.status(200).json({
+                checkTweet: checkTweet
             });
         } catch (error) {
             console.error('Error checking like:', error);
