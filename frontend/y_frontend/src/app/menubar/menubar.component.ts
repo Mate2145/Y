@@ -6,7 +6,6 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import {MatListModule} from '@angular/material/list';
 import {Router, RouterOutlet} from '@angular/router';
 import { MaterialModule } from '../material-module';
-import {error} from "console";
 import {User} from "../shared/model/User";
 import {UserService} from "../shared/services/user.service";
 
