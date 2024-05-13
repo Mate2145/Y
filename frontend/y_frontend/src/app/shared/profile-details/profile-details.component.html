@@ -27,12 +27,19 @@
     <mat-tab label="Replies">
       <ng-container *ngIf="Tweetreplies; else tweetLoading">
         <ng-container *ngFor="let tweetWithReplies of Tweetreplies">
-          <tweet-card [tweet]="tweetWithReplies.parentTweet"></tweet-card>
-          <ng-container *ngFor="let reply of tweetWithReplies.replies">
-            <div style="margin-left: 49px; margin-top: -44px">
-              <tweet-card class="tweet-card-intend" [isFooter]="false" [tweet]="reply"></tweet-card>
-            </div>
+          <ng-container *ngIf="tweetWithReplies.replies.length != 0; else elseReply">
+            <tweet-card [isFooter]="false" [tweet]="tweetWithReplies.parentTweet"></tweet-card>
+              <ng-container *ngFor="let reply of tweetWithReplies.replies">
+                <div style="margin-left: 49px; margin-top: -44px">
+                  <tweet-card class="tweet-card-intend" [isFooter]="false" [tweet]="reply"></tweet-card>
+                </div>
+              </ng-container>
           </ng-container>
+          <ng-template #elseReply>
+            <div>
+              No reply Tweets.
+            </div>
+          </ng-template>
         </ng-container>
       </ng-container>
     </mat-tab>

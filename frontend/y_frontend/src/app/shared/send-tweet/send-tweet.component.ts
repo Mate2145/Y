@@ -25,6 +25,14 @@ export class SendTweetComponent {
 
   sendTweet() {
     console.log('Sending tweet:', this.tweetText);
+    if (this.tweetText == ''){
+      this.snackbar.open('Empty!', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom'
+      });
+      return
+    }
     let tweet = new Tweet(this.tweetText)
     this.tweetService.postTweet(tweet).subscribe({
       next: (data) =>{

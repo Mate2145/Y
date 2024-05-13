@@ -1,19 +1,27 @@
 <mat-card class="tweet-card" *ngIf="tweet">
   <mat-card-header>
     <mat-card-title (click)="openProfile()">{{ tweet.username }}</mat-card-title>
-    <div *ngIf="checkedTweet">
+    <div *ngIf="checkedTweet || isAdmin">
       <mat-icon [matMenuTriggerFor]="menu">more_vert</mat-icon>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item (click)="openDeleteConfirmDialog()">
+        <!-- Display delete button if isAdmin is true -->
+        <button mat-menu-item *ngIf="isAdmin || checkedTweet" (click)="openDeleteConfirmDialog()">
           <mat-icon>delete</mat-icon>
           Delete
         </button>
-        <button mat-menu-item (click)="openEditDialog()">
+        <!-- Display edit button if checkedTweet is true and isAdmin is false -->
+        <button mat-menu-item *ngIf="checkedTweet && !isAdmin" (click)="openEditDialog()">
           <mat-icon>edit</mat-icon>
           Edit
         </button>
+        <!-- Display other actions button if checkedTweet is true or isAdmin is true -->
+        <button mat-menu-item *ngIf="isAdmin" (click)="openSomeOtherAction()">
+          <mat-icon>edit</mat-icon>
+          Edit (User role)
+        </button>
       </mat-menu>
     </div>
+
   </mat-card-header>
   <mat-card-content (click)="openTweet()">
     <p>{{ tweet.text }}</p>

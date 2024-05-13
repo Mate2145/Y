@@ -1,0 +1,42 @@
+<app-menubar></app-menubar>
+<mat-drawer-container autosize>
+  <mat-drawer #drawer opened="true" mode="side" position="start">
+    <mat-nav-list>
+      <mat-list-item>
+        <button (click)="navigate('/feed')" mat-button><mat-icon>dashboard</mat-icon> Dashboard</button>
+      </mat-list-item>
+      <mat-list-item>
+        <button (click)="navigate('/explore')" mat-button><mat-icon>explore</mat-icon> Slider</button>
+      </mat-list-item>
+      <mat-list-item *ngIf="isAdminUser">
+        <button (click)="navigate('/profiles')" mat-button><mat-icon>account_circle</mat-icon>Profiles</button>
+      </mat-list-item>
+      <mat-list-item>
+        <button mat-button (click)="logout()"><mat-icon>help</mat-icon> Log out</button>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-drawer>
+  <mat-drawer-content>
+    <div style="text-align: center;min-height: 800px;">
+      <div class="feed-box">
+        <div *ngFor="let user of userList">
+          <mat-card>
+            <mat-card-header>
+              <div class="button-wrapper">
+                  <button mat-button  (click)="openDeleteConfirmDialog(user._id)">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+              </div>
+            </mat-card-header>
+            <mat-card-content>
+              {{user.nickname}}
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+
+    </div>
+  </mat-drawer-content>
+</mat-drawer-container>
+

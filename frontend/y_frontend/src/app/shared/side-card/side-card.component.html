@@ -3,15 +3,18 @@
       <mat-card>
         <mat-card-title>Trends</mat-card-title>
         <mat-card-content>
-          FOLLOW THIS HASTAG
+          <mat-card>#SZTE</mat-card>
+          <mat-card>#Hungary</mat-card>
         </mat-card-content>
       </mat-card>
       <mat-card>
         <mat-card-title>Who to Follow</mat-card-title>
         <mat-card-content>
-          MATTER TO FOLLOW
+          <ng-container *ngFor="let user of userList">
+            <mat-card (click)="navigate('profile/' + user._id)">{{user.nickname}}</mat-card>
+          </ng-container>
         </mat-card-content>
       </mat-card>
     </mat-sidenav>
   </mat-sidenav-container>
-  
+

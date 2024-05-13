@@ -21,9 +21,7 @@ import {UserService} from "../shared/services/user.service";
 })
 export class ProfileComponent implements OnInit{
   user: any = {};
-  tweets: any[] = [];
-  replies: any[] = [];
-  userId = 'user123';  // Example user ID
+  isAdminUser:boolean = false
 
   constructor(private tweetService: TweetService,
               private route:ActivatedRoute,
@@ -33,7 +31,6 @@ export class ProfileComponent implements OnInit{
   ngOnInit(): void {
     this.route.data.subscribe({
       next: (data: any) =>{
-        console.log("YO EZ A DATA")
         console.log(data)
         this.user._id = data.user._id
         this.user.username = data.user.username
@@ -41,14 +38,30 @@ export class ProfileComponent implements OnInit{
         this.user.followersCount = data.user.followerCount
         this.user.coverPicture = "https://variety.com/wp-content/uploads/2023/03/Twitter.png?w=1000"
         this.user.bio = "This is my bio"
+        this.isAdmin()
       },error: (error) =>{
         console.log(error)
       }
     });
   }
 
+  isAdmin(){
+    this.userService.isAdminbyId().subscribe({
+      next: (data: boolean) =>{
+        console.log("ADMIN?" + data)
+        this.isAdminUser = data;
+      },error: (error) =>{
+
+      }
+    })
+  }
+
 
   logout() {
     this.router.navigateByUrl('/logout')
+  }
+
+  navigate(s: string) {
+    this.router.navigateByUrl(s)
   }
 }

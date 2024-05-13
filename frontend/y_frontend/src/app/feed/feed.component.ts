@@ -13,6 +13,8 @@ import { TweetService } from '../shared/services/feed.service';
 import { Tweet } from '../shared/model/Tweet';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import {User} from "../shared/model/User";
+import {UserService} from "../shared/services/user.service";
 
 @Component({
     selector: 'app-feed',
@@ -32,15 +34,18 @@ import { CommonModule } from '@angular/common';
 export class FeedComponent implements OnInit {
 
   tweetList:Tweet[] = []
+  isAdminUser: boolean = false
 
   constructor(
     private authService: AuthService,
     private feedService: TweetService,
+    private userService: UserService,
     private router: Router,
   ) { }
 
   ngOnInit(): void {
     this.getAllTweets()
+    this.isAdmin()
   }
 
 
@@ -51,6 +56,16 @@ export class FeedComponent implements OnInit {
           console.log(data);
       }, error: (error) =>{
           console.log(error)
+      }
+    })
+  }
+
+  isAdmin(){
+    this.userService.isAdminbyId().subscribe({
+      next: (data: boolean) =>{
+        this.isAdminUser = data;
+      },error: (error) =>{
+
       }
     })
   }
@@ -75,5 +90,9 @@ export class FeedComponent implements OnInit {
     if (tweet){
       this.getAllTweets()
     }
+  }
+
+  navigate(url:string){
+    this.router.navigateByUrl(url)
   }
 }

@@ -28,6 +28,22 @@ export class UserService {
     return this.http.get<any>(`${this.apiUrl}/isfollow/${userId}`,{withCredentials:true});
   }
 
+  isAdminbyId(){
+    return this.http.get<any>(`${this.apiUrl}/isAdmin`,{withCredentials:true});
+  }
+
+  getAllUsers(){
+    return this.http.get<any>(`${this.apiUrl}get-users`,{withCredentials:true});
+  }
+
+  deleteUser(id:string){
+    return this.http.delete<any>(`${this.apiUrl}delete-user/${id}`,{withCredentials:true});
+  }
+
+  getUserId(){
+    return this.http.get(`${this.apiUrl}get-auth-id`,{withCredentials:true})
+  }
+
   unfollowUserById(userId:string){
     return this.http.delete<any>(`${this.apiUrl}/unfollow/${userId}`,{withCredentials:true});
   }

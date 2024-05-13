@@ -15,6 +15,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Observable, switchMap,of } from 'rxjs';
 import {SendCommentComponent} from "../shared/send-comment/send-comment.component";
 import {Tweet} from "../shared/model/Tweet";
+import {User} from "../shared/model/User";
+import {UserService} from "../shared/services/user.service";
 
 @Component({
   selector: 'tweet-detail',
@@ -34,6 +36,7 @@ import {Tweet} from "../shared/model/Tweet";
 })
 export class TweetDetailsComponent implements OnInit {
   tweet: any; // Declare a variable to store the tweet details
+  isAdminUser: boolean = false
   tweetId?: string;
   isLoading:boolean = true
   tweetList: Tweet[] = [];
@@ -41,6 +44,7 @@ export class TweetDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private authService: AuthService,
+    private userService: UserService,
     private tweetService: TweetService,
     private router: Router,
     private cdRef: ChangeDetectorRef
@@ -57,6 +61,7 @@ export class TweetDetailsComponent implements OnInit {
         };
         console.log(this.tweet)
         this.getTweetComments(this.tweet._id)
+        this.isAdmin()
         this.isLoading = false
         this.cdRef.detectChanges()
       },error: (error) =>{
@@ -70,6 +75,20 @@ export class TweetDetailsComponent implements OnInit {
       next: (data:any) =>{
         console.log(data)
         this.tweetList = data
+      },error: (error) =>{
+        console.log(error)
+      }
+    })
+  }
+
+  isAdmin(){
+    this.userService.isAdminbyId().subscribe({
+      next: (data: boolean) =>{
+        console.log("ADMIN?" + data)
+        if (data){
+          console.log("ADMIN VOK")
+        }
+        this.isAdminUser = data;
       },error: (error) =>{
         console.log(error)
       }

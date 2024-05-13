@@ -36,6 +36,14 @@ export class SendCommentComponent {
 
   sendComment() {
     console.log('Sending tweet:', this.commentText);
+    if (this.commentText == ''){
+      this.snackbar.open('Empty!', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom'
+      });
+      return
+    }
     let comment = new Tweet(this.commentText,true,this.parentId)
     this.tweetService.postTweet(comment).subscribe({
       next: (data) =>{

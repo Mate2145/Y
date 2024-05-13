@@ -1,23 +1,17 @@
 <app-menubar></app-menubar>
 <mat-drawer-container autosize>
     <mat-drawer #drawer opened="true" mode="side" position="start">
-    <mat-nav-list>
+      <mat-nav-list>
         <mat-list-item>
-            <button (click)="navigate('/feed')" mat-button><mat-icon>dashboard</mat-icon> Dashboard</button>
+          <button (click)="navigate('/feed')" mat-button><mat-icon>dashboard</mat-icon> Dashboard</button>
+        </mat-list-item>
+        <mat-list-item *ngIf="isAdminUser">
+          <button (click)="navigate('/profiles')" mat-button><mat-icon>account_circle</mat-icon>Profiles</button>
         </mat-list-item>
         <mat-list-item>
-            <button routerLink="slider" mat-button><mat-icon>explore</mat-icon> Slider</button>
+          <button mat-button (click)="logout()"><mat-icon>help</mat-icon> Log out</button>
         </mat-list-item>
-        <mat-list-item>
-            <button mat-button><mat-icon>settings</mat-icon> Settings</button>
-        </mat-list-item>
-        <mat-list-item>
-            <button mat-button><mat-icon>help</mat-icon> Help</button>
-        </mat-list-item>
-        <mat-list-item>
-            <button mat-button (click)="logout()"><mat-icon>help</mat-icon> Log out</button>
-        </mat-list-item>
-    </mat-nav-list>
+      </mat-nav-list>
     </mat-drawer>
     <mat-drawer-content>
         <div style="text-align: center; min-height: 800px;">
@@ -26,7 +20,7 @@
                 <ng-container *ngIf="!isLoading; else loading">
                   <ng-container *ngIf="tweet">
                     <!-- Render tweet card if tweet data is available -->
-                    <tweet-card (tweetDeleted)="handleTweetDeletion($event)" [tweet]="tweet"></tweet-card>
+                    <tweet-card (tweetDeleted)="handleTweetDeletion($event)" [isAdmin]="isAdminUser" [tweet]="tweet"></tweet-card>
                   </ng-container>
                   <send-comment (postComment)="handleComment($event)" [parentId]="tweet._id"></send-comment>
                   <div *ngIf="tweetList.length === 0">
@@ -34,7 +28,7 @@
                   </div>
 
                   <div class="tweet-container" *ngFor="let tweet of tweetList">
-                    <tweet-card [tweet]="tweet" (tweetDeleted)="handleTweetDeletion($event)"></tweet-card>
+                    <tweet-card [tweet]="tweet" [isAdmin]="isAdminUser" (tweetDeleted)="handleTweetDeletion($event)"></tweet-card>
                   </div>
                 </ng-container>
 

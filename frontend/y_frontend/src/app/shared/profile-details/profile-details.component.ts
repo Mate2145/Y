@@ -44,7 +44,6 @@ export class ProfileDetailsComponent {
   Tweetreplies: any[] = [];
   isFollowed:boolean = false;
   isSameId: boolean = false;
-  userId = 'user123';  // Example user ID
 
   constructor(private tweetService: TweetService,
               private userService: UserService,

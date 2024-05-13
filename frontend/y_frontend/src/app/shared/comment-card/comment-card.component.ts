@@ -183,7 +183,14 @@ export class CommentCardComponent implements OnInit{
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log(result)
-        this.updateTweet(result.tweetText);
+        if (result.tweetText != ''){
+          this.updateTweet(result.tweetText);
+        }
+        this.snackbar.open('Empty tweet text!', 'Close', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'bottom'
+        });
       }
     });
   }

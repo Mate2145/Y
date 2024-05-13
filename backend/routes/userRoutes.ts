@@ -42,6 +42,94 @@ export const userRoutes = (passport: PassportStatic, router: Router): Router => 
         }
     });
 
+    // Get user information by ID
+    router.get('/get-users', async (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+
+        try {
+
+            const isAdmin = UserService.isAdmin(req.user as string,req)
+            if (!isAdmin){
+                return res.status(401).send('Admin role required');
+            }
+            // Find user by ID
+            const user = await User.find();
+
+            if (!user){
+                res.status(500).send("No user found!");
+            }
+            // Return user information with follower and followee counts
+            res.status(200).send(user);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
+    router.get('/get-auth-id', async (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+        try {
+            const user = await User.findById(req.user as string);
+            if (!user){
+                res.status(500).send("No user found!");
+            }
+            res.status(200).send(user);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
+    router.delete('/delete-user/:id', async (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+
+        try {
+
+            const isAdmin = UserService.isAdmin(req.user as string,req)
+            if (!isAdmin){
+                return res.status(401).send('Admin role required');
+            }
+            // Find user by ID
+            const user = await User.findByIdAndDelete(req.params.id);
+
+            if (!user){
+                res.status(500).send("No user found!");
+            }
+            // Return user information with follower and followee counts
+            res.status(200).send(user);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
+    router.get('/isAdmin', async (req, res) => {
+        if (!req.isAuthenticated()) {
+            return res.status(401).send('Authentication required');
+        }
+
+        try {
+            // Find user by ID
+            const user = await User.findById(req.user as string);
+
+            if (!user){
+                res.status(500).send("No user found!");
+            }
+
+            let isAdmin = false
+            if (user && user.admin){
+                isAdmin = true
+            }
+            // Return user information with follower and followee counts
+            res.status(200).send(isAdmin);
+        } catch (error) {
+            res.status(500).send(error);
+        }
+    });
+
 
     router.post('/follow', async (req, res) => {
         if (!req.isAuthenticated()) {

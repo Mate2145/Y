@@ -24,6 +24,7 @@ export class TweetCardComponent implements OnChanges {
   @Input()
   tweet!: Tweet;
   @Input() isFooter:boolean = true
+  @Input() isAdmin:boolean = false
   checkedTweet: boolean = false
   @Output() tweetDeleted = new EventEmitter<string>();
 
@@ -33,8 +34,6 @@ export class TweetCardComponent implements OnChanges {
     private dialog: MatDialog,
     private snackbar: MatSnackBar
   ){
-
-
 
   }
   ngOnInit(): void {
@@ -73,9 +72,7 @@ export class TweetCardComponent implements OnChanges {
   }
 
   checkTweet(){
-    console.log("Hali")
     if(this.tweet){
-      console.log("Ya")
       this.tweetService.checkTweet(this.tweet.userId as string).subscribe({
         next: (data: any) =>{
           console.log("Check tweet")
@@ -234,5 +231,19 @@ export class TweetCardComponent implements OnChanges {
 
   openProfile() {
     this.router.navigateByUrl('profile/' + this.tweet.userId)
+  }
+
+  openSomeOtherAction() {
+    const dialogRef = this.dialog.open(EditDialogComponent, {
+      width: '250px',
+      data: { tweetText: this.tweet.text } // Pass current tweet text
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log(result)
+        this.updateTweet(result.tweetText);
+      }
+    });
   }
 }

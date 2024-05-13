@@ -111,9 +111,6 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
         try {
             let userId = req.params.userId as string
-            if (userId != ''){
-                userId = req.user as string
-            }
 
             // Find tweets by userId
             const tweets = await Tweet.find({ userId: req.params.userId,parentId: null });
@@ -155,36 +152,32 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
             }
 
             let userId = req.params.userId as string;
-            if (userId !== '') {
-                userId = req.user as string; // Assuming req.user is a valid user object
-            }
 
-            // Find parent tweets by userId
-            const parentTweets = await Tweet.find({ userId:userId, parentId: null }).sort({ createdAt: -1 });
+            // Find reply tweets by userId
+            const replyTweets = await Tweet.find({ userId: userId, parentId: { $ne: null } }).sort({ createdAt: -1 });
+            console.log(replyTweets)
 
-            // Array to store parent tweets and their corresponding replies
-            const tweetsWithReplies = [];
+            // Create a map to group replies by parent tweet ID
+            const replyMap = new Map();
 
-            // Loop through each parent tweet to find its replies
-            for (const parentTweet of parentTweets) {
-                // Find replies (comments) for the parent tweet
-                const replies = await Tweet.find({ userId:userId, parentId: parentTweet._id }).sort({ createdAt: 1 });
-                if (!replies){
-                    tweetsWithReplies.push({
-                        parentTweet: parentTweet,
-                        replies: replies
-                    });
-                }
-                else {
-                    // Add parent tweet and its replies to the array
-                    tweetsWithReplies.push({
-                        parentTweet: parentTweet,
-                        replies: replies
-                    });
+            // Loop through each reply tweet
+            for (const replyTweet of replyTweets) {
+                // Find the parent tweet for the reply
+                const parentTweet = await Tweet.findById(replyTweet.parentId);
+
+                // If parent tweet exists, add the reply to the corresponding parent tweet in the map
+                if (parentTweet) {
+                    const parentId = parentTweet._id as string;
+                    if (!replyMap.has(parentId)) {
+                        replyMap.set(parentId, { parentTweet: parentTweet, replies: [] });
+                    }
+                    replyMap.get(parentId).replies.push(replyTweet);
                 }
             }
 
-            // Return the array containing parent tweets and their replies
+            // Convert the map to an array of objects and return as the response
+            const tweetsWithReplies = Array.from(replyMap.values());
+
             res.status(200).send(tweetsWithReplies);
         } catch (error) {
             res.status(500).send(error);
@@ -237,13 +230,15 @@ export const feedRoutes = (passport: PassportStatic, router: Router): Router => 
 
             const currentUserId = req.user as mongoose.Schema.Types.ObjectId
 
+            const isAdmin:boolean = await UserService.isAdmin(req.user as string, req)
+
             const tweet = await Tweet.findById(req.params.id);
             if (!tweet) {
                 return res.status(404).send('Tweet not found');
             }
 
             // Check if the tweet belongs to the current user
-            if (tweet.userId != currentUserId) {
+            if (tweet.userId != currentUserId && !isAdmin) {
                 return res.status(403).send('Unauthorized: You can only delete your own tweets');
             }
             console.log("About to DELETE tweet: " + req.params.id)
