@@ -44,7 +44,6 @@ export class AuthService {
   }
 
   checkAuth() {
-    console.log('Called this!!!')
     return this.http.get<boolean>('http://localhost:5000/auth/checkAuth', {withCredentials: true})
   }
 }
