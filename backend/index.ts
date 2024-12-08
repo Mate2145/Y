@@ -15,7 +15,7 @@ import {userRoutes} from "./routes/userRoutes";
 
 const app = express();
 const port = 5000;
-const dbUrl = 'mongodb://localhost:27017/y_db';
+const dbUrl = 'mongodb://172.100.0.30:27017/y_db';
 
 // mongodb connection
 mongoose.connect(dbUrl).then((_) => {
